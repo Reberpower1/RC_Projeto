@@ -32,12 +32,8 @@ char* read_file(const char *filename, char *requested_domain) {
   }
   char domain[BUF_SIZE];
   char ip[BUF_SIZE];
-  printf("Dominio a se procurar: %s\n", requested_domain);
   while(fscanf(file, "%s %s\n", domain, ip) == 2){
-    printf("A procurar...\n");
-    printf("Dominio atual: %s, IP associado: %s\n", domain, ip);
     if(strcmp(requested_domain, domain) == 0){
-      printf("Ip associado ao dominio foi encontrado :D\n");
       fclose(file);
       return strdup(ip);
     }
@@ -87,27 +83,26 @@ void process_client(int fd) {
   char buffer[BUF_SIZE] = "Bem-vindo ao servidor de nomes do DEI. Indique o nome do domínio.\n";
   write(fd, buffer, strlen(buffer));
   char requested_domain[BUF_SIZE];
-  //while(strcmp(requested_domain, "SAIR") != 0){
+  while(1){
     int n = read(fd, requested_domain, BUF_SIZE - 1);
     requested_domain[strcspn(requested_domain, "\n")] = '\0';
-    printf("Domain: %s\n", requested_domain);
-    if (n > 0) {
+    if (n > 1) {
+      if(strcmp(requested_domain, "SAIR") == 0){
+      	break;
+      }
+    
       char *ip = read_file(filename, requested_domain);
       if(ip != NULL){
-          printf("%s", ip);
           snprintf(buffer, BUF_SIZE*3, "O nome de domínio %s tem associado o endereço IP %s\n", requested_domain, ip);
-          printf("%s", buffer);
-          write(fd, buffer, strlen(buffer));
-          free(ip);
       }
       else{
         snprintf(buffer, BUF_SIZE*2, "O nome de domínio %s não tem um IP associado.\n", requested_domain);
-        write(fd, buffer, strlen(buffer));
       }
+      write(fd, buffer, strlen(buffer));
     }
-  //}
-  
-  write(fd, "Até Logo!\n", 10);
+  }
+  snprintf(buffer, BUF_SIZE, "Até Logo!\n");
+  write(fd, buffer, BUF_SIZE);
   close(fd);
 }
 

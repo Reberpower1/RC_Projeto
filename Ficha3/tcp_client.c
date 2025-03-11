@@ -46,9 +46,17 @@ int main(int argc, char *argv[]) {
     response[n] = '\0';
     printf("%s\n", response);
     char buffer[BUF_SIZE];
-    while (fgets(buffer, BUF_SIZE, stdin) != NULL && strcmp(buffer, "SAIR\n") != 0){
+    while(1){
+      // recolhe o requested domain
+	  fgets(buffer, BUF_SIZE, stdin);
       buffer[strcspn(buffer, "\n")] = '\0';
       write(fd, buffer, BUF_SIZE);
+      // se requested domain for "SAIR", então termina logo.
+      if(strcmp(buffer, "SAIR") == 0){
+      	break;
+      }
+      
+      // ler o IP obtido
       n = read(fd, response, BUF_SIZE - 1);
       if (n > 0) {
         response[strcspn(response, "\n")] = '\0';
@@ -56,11 +64,11 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-    n = read(fd, response, 10);
-    if(n > 0){
-      response[strcspn(response, "\n")] = '\0';
-      printf("%s\n", response);
-    }
+	n = read(fd, response, BUF_SIZE);
+	if(n > 0){
+    	response[strcspn(response, "\n")] = '\0';
+    	printf("%s\n", response);
+	}
   close(fd);
   exit(0);
 }
