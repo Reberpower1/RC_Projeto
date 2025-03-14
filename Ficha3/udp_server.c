@@ -19,6 +19,9 @@ char bin[BUFLEN];
 char* conv_hex(int num){
 	int index = 0;
 	int tmp;
+	if(num == 0){
+		return "0";
+	}
 	while(num > 0){
 		tmp = num % 16;
 
